@@ -1,0 +1,164 @@
+.product-card {
+  position: relative;
+  background: var(--bg-card);
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  cursor: pointer;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+  text-decoration: none;
+  display: block;
+  opacity: 0;
+  animation: fadeInUp 0.6s ease forwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 60px rgba(143, 175, 194, 0.3);
+}
+
+.product-image-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: all 1s cubic-bezier(0.23, 1, 0.32, 1);
+  filter: grayscale(0.1) brightness(1.05);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.1);
+  filter: grayscale(0) brightness(1);
+}
+
+.product-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    to top,
+    rgba(143, 175, 194, 0.95) 0%,
+    rgba(143, 175, 194, 0.7) 30%,
+    rgba(143, 175, 194, 0) 70%
+  );
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 3rem;
+}
+
+.product-card:hover .product-overlay {
+  opacity: 1;
+}
+
+.product-name-overlay {
+  font-size: 2rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.75rem;
+  letter-spacing: 0.02em;
+  transform: translateY(30px);
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.1s;
+  font-family: 'Cormorant Garamond', serif;
+}
+
+.product-card:hover .product-name-overlay {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.product-description-overlay {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  letter-spacing: 0.01em;
+  transform: translateY(30px);
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.15s;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 300;
+}
+
+.product-card:hover .product-description-overlay {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.product-price-overlay {
+  font-size: 1.75rem;
+  font-weight: 500;
+  color: white;
+  letter-spacing: 0.02em;
+  margin-bottom: 1rem;
+  transform: translateY(30px);
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.2s;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.product-card:hover .product-price-overlay {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.view-details {
+  font-size: 1rem;
+  font-weight: 600;
+  color: white;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transform: translateY(30px);
+  opacity: 0;
+  transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1) 0.25s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.product-card:hover .view-details {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.product-card:hover .view-details {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+@media (max-width: 768px) {
+  .product-overlay {
+    padding: 2rem;
+  }
+  
+  .product-name-overlay {
+    font-size: 1.5rem;
+  }
+  
+  .product-price-overlay {
+    font-size: 1.25rem;
+  }
+}
+

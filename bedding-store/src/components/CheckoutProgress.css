@@ -1,0 +1,130 @@
+.checkout-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 3rem;
+  padding: 2rem 0;
+  animation: fadeIn 0.6s ease;
+}
+
+.progress-step-wrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 200px;
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  position: relative;
+  z-index: 1;
+}
+
+.progress-step-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--bg-elevated);
+  border: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  transition: all 0.4s ease;
+  position: relative;
+}
+
+.progress-step.active .progress-step-icon {
+  background: linear-gradient(135deg, var(--blue), var(--blue-light));
+  border-color: var(--blue);
+  color: white;
+  box-shadow: 0 8px 24px rgba(143, 175, 194, 0.4);
+  animation: scaleIn 0.4s ease;
+}
+
+.progress-step.completed .progress-step-icon {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: white;
+}
+
+@keyframes scaleIn {
+  0% {
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.progress-step-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.progress-step.active .progress-step-name {
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.progress-step.completed .progress-step-name {
+  color: var(--text);
+}
+
+.progress-line {
+  flex: 1;
+  height: 3px;
+  background: var(--border);
+  margin: 0 -1rem;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+.progress-line::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--blue), var(--blue-light));
+  transition: width 0.6s ease;
+}
+
+.progress-line.completed::after {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .checkout-progress {
+    padding: 1.5rem 0;
+  }
+
+  .progress-step-wrapper {
+    max-width: 120px;
+  }
+
+  .progress-step-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+
+  .progress-step-name {
+    font-size: 0.75rem;
+  }
+
+  .progress-line {
+    margin: 0 -0.5rem;
+  }
+}
