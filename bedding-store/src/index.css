@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -31,4 +35,12 @@ body {
   --border: #E8E6E1;
   --shadow: rgba(143, 175, 194, 0.15);
   --shadow-lg: rgba(143, 175, 194, 0.25);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

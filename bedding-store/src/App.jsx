@@ -11,6 +11,7 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import ProductDetail from './pages/ProductDetail'
 import CartPage from './pages/CartPage'
+import PromoPage from './pages/PromoPage'
 import './App.css'
 
 function AnalyticsTracker() {
@@ -23,6 +24,19 @@ function AnalyticsTracker() {
   return null
 }
 
+function MainLayout({ children }) {
+  return (
+    <div className="app">
+      <Header />
+      <Notification />
+      <main className="main-content">
+        {children}
+      </main>
+      <Footer />
+    </div>
+  )
+}
+
 function App() {
   useEffect(() => {
     initGA()
@@ -33,22 +47,15 @@ function App() {
       <Router>
         <AnalyticsTracker />
         <Loader />
-        <div className="app">
-          <Header />
-          <Notification />
-          
-          <main className="main-content">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<CartPage />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/contact" element={<Contact />} />
-            </Routes>
-          </main>
 
-          <Footer />
-        </div>
+        <Routes>
+          <Route path="/promo" element={<PromoPage />} />
+          <Route path="/" element={<MainLayout><Home /></MainLayout>} />
+          <Route path="/product/:id" element={<MainLayout><ProductDetail /></MainLayout>} />
+          <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
+          <Route path="/about" element={<MainLayout><About /></MainLayout>} />
+          <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
+        </Routes>
       </Router>
     </AppProvider>
   )
