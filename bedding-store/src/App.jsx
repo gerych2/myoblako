@@ -14,49 +14,42 @@ import CartPage from './pages/CartPage'
 import './App.css'
 
 function AnalyticsTracker() {
-  const location = useLocation()
+    const location = useLocation()
 
-  useEffect(() => {
-    pageview(location.pathname + location.search)
-  }, [location])
+    useEffect(() => {
+        pageview(location.pathname + location.search)
+    }, [location])
 
-  return null
-}
-
-function MainLayout({ children }) {
-  return (
-    <div className="app">
-      <Header />
-      <Notification />
-      <main className="main-content">
-        {children}
-      </main>
-      <Footer />
-    </div>
-  )
+    return null
 }
 
 function App() {
-  useEffect(() => {
-    initGA()
-  }, [])
+    useEffect(() => {
+        initGA()
+    }, [])
 
-  return (
-    <AppProvider>
-      <Router>
-        <AnalyticsTracker />
-        <Loader />
-
-        <Routes>
-          <Route path="/" element={<MainLayout><Home /></MainLayout>} />
-          <Route path="/product/:id" element={<MainLayout><ProductDetail /></MainLayout>} />
-          <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
-          <Route path="/about" element={<MainLayout><About /></MainLayout>} />
-          <Route path="/contact" element={<MainLayout><Contact /></MainLayout>} />
-        </Routes>
-      </Router>
-    </AppProvider>
-  )
+    return (
+        <AppProvider>
+            <Router>
+                <AnalyticsTracker />
+                <Loader />
+                <div className="app">
+                    <Header />
+                    <Notification />
+                    <main className="main-content">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/product/:id" element={<ProductDetail />} />
+                            <Route path="/cart" element={<CartPage />} />
+                            <Route path="/about" element={<About />} />
+                            <Route path="/contact" element={<Contact />} />
+                        </Routes>
+                    </main>
+                    <Footer />
+                </div>
+            </Router>
+        </AppProvider>
+    )
 }
 
 export default App
