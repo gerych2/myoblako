@@ -11,7 +11,6 @@ import About from './pages/About'
 import Contact from './pages/Contact'
 import ProductDetail from './pages/ProductDetail'
 import CartPage from './pages/CartPage'
-import PromoPage from './pages/PromoPage'
 import './App.css'
 
 function AnalyticsTracker() {
@@ -49,7 +48,6 @@ function App() {
         <Loader />
 
         <Routes>
-          <Route path="/promo" element={<PromoPage />} />
           <Route path="/" element={<MainLayout><Home /></MainLayout>} />
           <Route path="/product/:id" element={<MainLayout><ProductDetail /></MainLayout>} />
           <Route path="/cart" element={<MainLayout><CartPage /></MainLayout>} />
