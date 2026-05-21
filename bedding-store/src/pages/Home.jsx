@@ -103,7 +103,7 @@ const Home = () => {
 
           <directionalLight
             position={[5, 10, 5]}
-            intensity={1.5}
+            intensity={0.8}
             castShadow
             shadow-mapSize={[2048, 2048]}
             shadow-bias={-0.0001}
@@ -129,59 +129,47 @@ const Home = () => {
 
             {/* Neon Decorative Light */}
             <group position={[0, 2, -4]}>
-              <mesh position={[-3, 0, 0]}>
-                <cylinderGeometry args={[0.02, 0.02, 6, 16]} />
+              <mesh position={[4, 0, 0]}>
+                <cylinderGeometry args={[0.02, 0.02, 10, 16]} />
                 <meshBasicMaterial color={selectedColor} toneMapped={false} />
               </mesh>
             </group>
 
             <Environment preset="studio" />
 
+            {/*
             <EffectComposer disableNormalPass>
-              <Bloom luminanceThreshold={1} mipmapBlur intensity={1.5} />
+              <Bloom luminanceThreshold={2} mipmapBlur intensity={1.5} />
             </EffectComposer>
+            */}
           </Suspense>
         </Canvas>
       </div>
 
       {/* HTML UI Layer */}
       <div className="ui-layer">
-
-        {/* Screen 1 */}
-        <section className="screen-section hero-section">
-          <div className="hero-content">
-            <h1 className="hero-title">MYOBLAKO</h1>
-            <p className="hero-subtitle">Кинематографичный комфорт</p>
-          </div>
-        </section>
-
-        {/* Screen 2 */}
-        <section className="screen-section feature-section">
-          <div className="feature-content">
-            <h2 className="feature-title">Премиальные Ткани</h2>
-            <p className="feature-description">
-              Почувствуйте мягкость и глубину фактуры. Наше белье создано для идеального сна.
+        <div className="content-wrapper">
+          <div className="left-content">
+            <h1 className="main-title">Elegance meets comfort.</h1>
+            <p className="sub-description">
+              Discover the ultimate bedding experience with our premium,
+              hand-crafted materials designed for deep, restorative sleep.
             </p>
           </div>
-        </section>
 
-        {/* Screen 3: Configurator */}
-        <section className="screen-section config-section">
           <div className="config-panel">
-            <h2 className="config-title">Собери свой комплект</h2>
-
-            <div className="material-selector">
-              {materials.map(mat => (
-                <button
-                  key={mat}
-                  className={`material-btn ${selectedMaterial === mat ? 'active' : ''}`}
-                  onClick={() => setSelectedMaterial(mat)}
-                >
-                  {mat}
-                </button>
-              ))}
+            <h3 className="panel-section-title">CHOOSE YOUR SET</h3>
+            <div className="size-selector">
+              <button className="size-btn active">Queen</button>
+              <button className="size-btn">King</button>
             </div>
 
+            <div className="product-info-box">
+              <div className="product-meta">{selectedMaterial} • Premium Collection</div>
+              <h2 className="product-price">12 900 ₽</h2>
+            </div>
+
+            <h3 className="panel-section-title">COLOR</h3>
             <div className="color-selector">
               {colors.map(colorObj => (
                 <button
@@ -195,11 +183,10 @@ const Home = () => {
             </div>
 
             <button className="add-to-cart-btn-large">
-              Добавить в корзину (8 900 ₽)
+              ADD TO CART
             </button>
           </div>
-        </section>
-
+        </div>
       </div>
     </div>
   )

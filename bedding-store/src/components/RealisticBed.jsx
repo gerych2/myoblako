@@ -1,60 +1,88 @@
 import React, { useRef, useMemo } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 
 export default function RealisticBed({ duvetColor, sheetColor, pillowColor, ...props }) {
-  // Try to load the GLB file. We wrap this component in a Suspense boundary in Home.jsx,
-  // but if the model fails to load, it might crash.
+  const duvetRef = useRef()
+  const pillowsRef = useRef([])
 
-  // Actually, wait, useGLTF will throw a Promise to Suspense. We should ensure the model exists.
-  // We downloaded a Sofa as a fallback since a perfect bed glb wasn't available.
-  const { nodes, materials } = useGLTF('/models/bed.glb')
+  // Create materials with colors based on the props
+  const duvetMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: duvetColor,
+    roughness: 0.9,
+    metalness: 0.05
+  }), [])
 
-  // Clone the materials so we can independently color them
-  const fabricMaterial = useMemo(() => {
-    if (materials && materials.GlamVelvetSofa_fabric_navy) {
-      const mat = materials.GlamVelvetSofa_fabric_navy.clone()
-      // Setup some default PBR values for "fabric"
-      mat.roughness = 0.8
-      mat.metalness = 0.1
-      return mat
-    }
-    return new THREE.MeshStandardMaterial({ roughness: 0.8 })
-  }, [materials])
+  const sheetMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: sheetColor,
+    roughness: 0.8,
+    metalness: 0.1
+  }), [])
 
-  // We will map the duvetColor, sheetColor, and pillowColor to different parts of the sofa if possible
-  // Since it's a sofa, we just color the main fabric.
+  const pillowMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: pillowColor,
+    roughness: 0.9,
+    metalness: 0.05
+  }), [])
+
+  const bedFrameMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: '#333333',
+    roughness: 0.5,
+    metalness: 0.2
+  }), [])
+
   useFrame(() => {
-    if (fabricMaterial && fabricMaterial.color) {
-      // Lerp to the selected color. We will use duvetColor as the primary color here since it's a single fabric mesh.
-      fabricMaterial.color.lerp(new THREE.Color(duvetColor), 0.1)
-    }
+    duvetMaterial.color.lerp(new THREE.Color(duvetColor), 0.1)
+    sheetMaterial.color.lerp(new THREE.Color(sheetColor), 0.1)
+    pillowMaterial.color.lerp(new THREE.Color(pillowColor), 0.1)
   })
 
-  // Ensure we have the nodes to prevent white screen crashes
-  if (!nodes || !nodes.GlamVelvetSofa_fabric) {
-    return (
-      <mesh>
-        <boxGeometry args={[1,1,1]} />
-        <meshStandardMaterial color={duvetColor} />
-      </mesh>
-    )
-  }
-
   return (
-    <group {...props} dispose={null} scale={0.03} position={[0, 0, 0]}>
-      {nodes.GlamVelvetSofa_legs && (
-         <mesh geometry={nodes.GlamVelvetSofa_legs.geometry} material={materials.GlamVelvetSofa_legs} />
-      )}
-      {nodes.GlamVelvetSofa_fabric && (
-         <mesh geometry={nodes.GlamVelvetSofa_fabric.geometry} material={fabricMaterial} castShadow receiveShadow />
-      )}
-      {nodes.GlamVelvetSofa_feet && (
-         <mesh geometry={nodes.GlamVelvetSofa_feet.geometry} material={materials.GlamVelvetSofa_feet} />
-      )}
+    <group {...props}>
+      {/* Bed Frame Base */}
+      <mesh position={[0, 0.2, 0]} receiveShadow castShadow>
+        <boxGeometry args={[2.2, 0.4, 2.4]} />
+        <primitive object={bedFrameMaterial} attach="material" />
+      </mesh>
+
+      {/* Headboard */}
+      <mesh position={[0, 0.9, -1.15]} receiveShadow castShadow>
+        <boxGeometry args={[2.2, 1.0, 0.1]} />
+        <primitive object={bedFrameMaterial} attach="material" />
+      </mesh>
+
+      {/* Mattress / Sheet */}
+      <mesh position={[0, 0.45, 0.05]} receiveShadow castShadow>
+        <boxGeometry args={[2.0, 0.15, 2.1]} />
+        <primitive object={sheetMaterial} attach="material" />
+      </mesh>
+
+      {/* Duvet / Blanket */}
+      <mesh ref={duvetRef} position={[0, 0.55, 0.25]} receiveShadow castShadow>
+        <boxGeometry args={[2.05, 0.1, 1.7]} />
+        <primitive object={duvetMaterial} attach="material" />
+      </mesh>
+
+      {/* Pillows */}
+      {/* Back Pillows */}
+      <mesh position={[-0.5, 0.55, -0.8]} rotation={[-0.2, 0, 0]} receiveShadow castShadow>
+        <boxGeometry args={[0.8, 0.15, 0.5]} />
+        <primitive object={pillowMaterial} attach="material" />
+      </mesh>
+      <mesh position={[0.5, 0.55, -0.8]} rotation={[-0.2, 0, 0]} receiveShadow castShadow>
+        <boxGeometry args={[0.8, 0.15, 0.5]} />
+        <primitive object={pillowMaterial} attach="material" />
+      </mesh>
+
+      {/* Front Pillows */}
+      <mesh position={[-0.45, 0.6, -0.6]} rotation={[-0.1, 0.1, 0]} receiveShadow castShadow>
+        <boxGeometry args={[0.6, 0.12, 0.4]} />
+        <primitive object={pillowMaterial} attach="material" />
+      </mesh>
+      <mesh position={[0.45, 0.6, -0.6]} rotation={[-0.1, -0.1, 0]} receiveShadow castShadow>
+        <boxGeometry args={[0.6, 0.12, 0.4]} />
+        <primitive object={pillowMaterial} attach="material" />
+      </mesh>
     </group>
   )
 }
-
-useGLTF.preload('/models/bed.glb')
