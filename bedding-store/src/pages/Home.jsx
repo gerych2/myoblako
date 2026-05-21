@@ -1,79 +1,83 @@
-import { useEffect, useRef, useState, Suspense } from 'react'
-import { useNavigate } from 'react-router-dom'
-import * as THREE from 'three'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { Environment, ContactShadows } from '@react-three/drei'
+import React, { useRef, Suspense, useEffect } from 'react'
+import { Canvas, useThree } from '@react-three/fiber'
+import { Environment, PresentationControls, ContactShadows, useProgress, Html } from '@react-three/drei'
 import { EffectComposer, Bloom } from '@react-three/postprocessing'
-import { useApp } from '../context/AppContext'
+import { usePromoStore } from '../store/promoStore'
 import RealisticBed from '../components/RealisticBed'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import * as THREE from 'three'
 import './Home.css'
 
 gsap.registerPlugin(ScrollTrigger)
 
-const colors = [
-  { hex: '#4A5F7F', name: 'Синий индиго' },
-  { hex: '#8BA6B9', name: 'Серо-голубой' },
-  { hex: '#AFC6D4', name: 'Облачный' },
-  { hex: '#D2B4B4', name: 'Пыльная роза' },
-  { hex: '#A8BBA2', name: 'Оливковый' },
-  { hex: '#F0F0F0', name: 'Белый' }
-]
+function Loader() {
+  const { progress } = useProgress()
+  return (
+    <Html center>
+      <div className="loader-container">
+        <div className="loader-text">Loading 3D assets... {Math.round(progress)}%</div>
+      </div>
+    </Html>
+  )
+}
 
-function CameraController() {
+function CameraController({ targetRef }) {
   const { camera } = useThree()
-  const targetRef = useRef(new THREE.Vector3(0, 0, 0))
 
   useEffect(() => {
-    // We animate the camera across 3 scroll sections.
+    // Initial camera position
+    camera.position.set(0, 4, 10)
+
+    // Clear any existing scroll triggers
+    ScrollTrigger.getAll().forEach(t => t.kill())
+
     const tl = gsap.timeline({
       scrollTrigger: {
-        trigger: ".home-3d",
+        trigger: ".home-container",
         start: "top top",
         end: "bottom bottom",
         scrub: 1,
       }
     })
 
-    // Initial explicit position
-    camera.position.set(0, 4, 8)
-
-    // Screen 2: Zoom in slightly
+    // Screen 2: Zoom in and change angle
     tl.to(camera.position, {
-      x: 0,
-      y: 2.5,
-      z: 5.5,
-      ease: "power1.inOut"
+      x: -4,
+      y: 2,
+      z: 6,
+      ease: "power2.inOut"
     }, 0)
 
     tl.to(targetRef.current, {
+      x: 0,
       y: 0.5,
-      z: -1,
-      ease: "power1.inOut"
+      z: 0,
+      ease: "power2.inOut"
     }, 0)
 
-    // Screen 3: Move to side for configurator
+    // Screen 3: Fly over to the side, looking at folds
     tl.to(camera.position, {
-      x: 3.5,
-      y: 3,
-      z: 5,
-      ease: "power1.inOut"
+      x: 5,
+      y: 1.5,
+      z: 3,
+      ease: "power2.inOut"
     }, 1)
 
     tl.to(targetRef.current, {
-      x: -0.5,
-      y: 0.2,
-      z: -0.5,
-      ease: "power1.inOut"
+      x: 0,
+      y: 0,
+      z: 0,
+      ease: "power2.inOut"
     }, 1)
 
     return () => {
-      if (tl) tl.kill()
+      ScrollTrigger.getAll().forEach(t => t.kill())
     }
-  }, [camera])
+  }, [camera, targetRef])
 
-  useFrame(() => {
+  // Constantly look at the target
+  useThree(({ camera }) => {
     camera.lookAt(targetRef.current)
   })
 
@@ -81,171 +85,106 @@ function CameraController() {
 }
 
 const Home = () => {
-  const navigate = useNavigate()
-  const { addToCart } = useApp()
+  const {
+    selectedColor, setSelectedColor,
+    selectedMaterial, setSelectedMaterial,
+    colors, materials
+  } = usePromoStore()
 
-  const [loading, setLoading] = useState(true)
-  const [selectedColor, setSelectedColor] = useState('#4A5F7F')
-  const [selectedFabric, setSelectedFabric] = useState('Вареный хлопок')
-  const [selectedSize, setSelectedSize] = useState('2 сп')
-  const [colorName, setColorName] = useState('Синий индиго')
-
-  useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500)
-    return () => clearTimeout(timer)
-  }, [])
-
-  const handleColorChange = (color) => {
-    setSelectedColor(color.hex)
-    setColorName(color.name)
-  }
-
-  const handleAddToCart = () => {
-    const product = {
-      id: 1,
-      name: 'MYOBLAKO Premium',
-      price: 8900,
-      selectedColor: colorName,
-      material: selectedFabric,
-      size: selectedSize
-    }
-    addToCart(product, selectedColor, selectedSize)
-  }
+  const cameraTargetRef = useRef(new THREE.Vector3(0, 0.5, 0))
 
   return (
-    <div className="home-3d" style={{ height: '300vh', background: '#050505' }}>
-      {loading && (
-        <div className="loading" style={{ background: '#050505' }}>
-          <div className="spinner"></div>
-          <p style={{ color: '#fff' }}>загрузка...</p>
-        </div>
-      )}
-
-      {/* Transparent Header */}
-      <header className="header-3d" style={{ background: 'transparent', backdropFilter: 'none', borderBottom: 'none' }}>
-        <div className="logo text-white">MYOBLAKO</div>
-        <nav className="nav">
-          <a href="#" className="text-white" onClick={(e) => { e.preventDefault(); navigate('/') }}>коллекции</a>
-          <a href="#" className="text-white" onClick={(e) => { e.preventDefault(); navigate('/about') }}>материалы</a>
-          <a href="#" className="text-white" onClick={(e) => { e.preventDefault(); navigate('/cart') }}>купить</a>
-        </nav>
-      </header>
-
-      {/* Canvas container stuck to viewport */}
-      <div style={{ position: 'sticky', top: 0, height: '100vh', width: '100%' }}>
-        <Canvas shadows camera={{ position: [0, 4, 8], fov: 45 }}>
+    <div className="home-container">
+      {/* 3D Canvas Background */}
+      <div className="canvas-wrapper">
+        <Canvas shadows camera={{ position: [0, 4, 10], fov: 45 }}>
           <color attach="background" args={['#050505']} />
-          <ambientLight intensity={0.2} />
+          <ambientLight intensity={0.3} />
+
           <directionalLight
             position={[5, 10, 5]}
-            intensity={1.5}
+            intensity={0.8}
             castShadow
             shadow-mapSize={[2048, 2048]}
+            shadow-bias={-0.0001}
           />
-          <spotLight position={[-5, 5, -5]} intensity={0.5} penumbra={1} color="#AFC6D4" />
 
-          <CameraController />
+          <Suspense fallback={<Loader />}>
+            <CameraController targetRef={cameraTargetRef} />
+            <PresentationControls
+              global
+              rotation={[0, 0, 0]}
+              polar={[-0.2, 0.4]}
+              azimuth={[-Math.PI / 4, Math.PI / 4]}
+              config={{ mass: 2, tension: 400 }}
+              snap={{ mass: 4, tension: 40 }}
+            >
+              <RealisticBed
+                duvetColor={selectedColor}
+                sheetColor={selectedColor}
+                pillowColor={selectedColor}
+              />
+              <ContactShadows position={[0, -0.01, 0]} opacity={0.8} scale={10} blur={2.5} far={4} color="#000000" />
+            </PresentationControls>
 
-          <Suspense fallback={null}>
-            <RealisticBed duvetColor={selectedColor} sheetColor={selectedColor} pillowColor={selectedColor} />
-            <ContactShadows position={[0, -0.99, 0]} opacity={0.6} scale={10} blur={2.5} far={4} color="#000000" />
-
-            {/* Ambient Neon Accents */}
+            {/* Neon Decorative Light */}
             <group position={[0, 2, -4]}>
-              <mesh position={[-3, 0, 0]}>
-                <cylinderGeometry args={[0.02, 0.02, 6, 16]} />
-                <meshBasicMaterial color={selectedColor} toneMapped={false} />
-              </mesh>
-              <mesh position={[3, 0, 0]}>
-                <cylinderGeometry args={[0.02, 0.02, 6, 16]} />
+              <mesh position={[4, 0, 0]}>
+                <cylinderGeometry args={[0.02, 0.02, 10, 16]} />
                 <meshBasicMaterial color={selectedColor} toneMapped={false} />
               </mesh>
             </group>
 
-            {/* Cinematic Studio Reflection */}
             <Environment preset="studio" />
+
+            {/*
+            <EffectComposer disableNormalPass>
+              <Bloom luminanceThreshold={2} mipmapBlur intensity={1.5} />
+            </EffectComposer>
+            */}
           </Suspense>
-
-          <EffectComposer disableNormalPass>
-            <Bloom luminanceThreshold={1} mipmapBlur intensity={1.5} />
-          </EffectComposer>
         </Canvas>
+      </div>
 
-        {/* Cinematic Title (Sans-serif) */}
-        <div className="hero-content" style={{ position: 'absolute', top: '35%', left: '10%', pointerEvents: 'none' }}>
-            <h1 style={{ color: 'white', fontSize: '4.5rem', fontFamily: 'sans-serif', fontWeight: '300', marginBottom: '1rem', letterSpacing: '-0.02em' }}>
-              Премиальный сон
-            </h1>
-            <p style={{ color: '#aaa', fontSize: '1.1rem', maxWidth: '400px', fontFamily: 'sans-serif', fontWeight: '300', lineHeight: '1.6' }}>
-              Погрузитесь в комфорт с нашими комплектами. Листайте вниз, чтобы настроить свою кровать.
+      {/* HTML UI Layer */}
+      <div className="ui-layer">
+        <div className="content-wrapper">
+          <div className="left-content">
+            <h1 className="main-title">Elegance meets comfort.</h1>
+            <p className="sub-description">
+              Discover the ultimate bedding experience with our premium,
+              hand-crafted materials designed for deep, restorative sleep.
             </p>
-        </div>
+          </div>
 
-        {/* Configuration Panel */}
-        <div className="panel dark-panel">
-          <div className="panel-content">
-            <div className="panel-header" style={{ borderBottomColor: '#222' }}>
-              <h2 style={{ color: 'white', fontFamily: 'sans-serif', fontWeight: '400' }}>myoblako</h2>
-              <p style={{ color: '#888', fontFamily: 'sans-serif' }}>3D конфигуратор</p>
+          <div className="config-panel">
+            <h3 className="panel-section-title">CHOOSE YOUR SET</h3>
+            <div className="size-selector">
+              <button className="size-btn active">Queen</button>
+              <button className="size-btn">King</button>
             </div>
 
-            <div className="section">
-              <label style={{ color: 'white', fontFamily: 'sans-serif' }}>Цвет комплекта</label>
-              <div className="colors">
-                {colors.map((color, i) => (
-                  <button
-                    key={i}
-                    className={`color ${selectedColor === color.hex ? 'active' : ''}`}
-                    style={{ backgroundColor: color.hex, borderColor: selectedColor === color.hex ? 'white' : 'transparent' }}
-                    onClick={() => handleColorChange(color)}
-                  />
-                ))}
-              </div>
-              <p className="color-name" style={{ color: '#aaa', fontFamily: 'sans-serif' }}>{colorName}</p>
+            <div className="product-info-box">
+              <div className="product-meta">{selectedMaterial} • Premium Collection</div>
+              <h2 className="product-price">12 900 ₽</h2>
             </div>
 
-            <div className="section">
-              <label style={{ color: 'white', fontFamily: 'sans-serif' }}>Ткань</label>
-              <div className="options">
-                {['Страйп-сатин', 'Вареный хлопок'].map((fabric) => (
-                  <button
-                    key={fabric}
-                    className={`option dark-option ${selectedFabric === fabric ? 'active' : ''}`}
-                    style={{ fontFamily: 'sans-serif' }}
-                    onClick={() => setSelectedFabric(fabric)}
-                  >
-                    {fabric}
-                  </button>
-                ))}
-              </div>
+            <h3 className="panel-section-title">COLOR</h3>
+            <div className="color-selector">
+              {colors.map(colorObj => (
+                <button
+                  key={colorObj.hex}
+                  className={`color-btn ${selectedColor === colorObj.hex ? 'active' : ''}`}
+                  style={{ backgroundColor: colorObj.hex }}
+                  onClick={() => setSelectedColor(colorObj.hex)}
+                  title={colorObj.name}
+                />
+              ))}
             </div>
 
-            <div className="section">
-              <label style={{ color: 'white', fontFamily: 'sans-serif' }}>Размер</label>
-              <div className="options">
-                {['1.5 сп', '2 сп', 'King', 'Евро'].map((size) => (
-                  <button
-                    key={size}
-                    className={`option dark-option ${selectedSize === size ? 'active' : ''}`}
-                    style={{ fontFamily: 'sans-serif' }}
-                    onClick={() => setSelectedSize(size)}
-                  >
-                    {size}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="summary" style={{ background: '#111', border: '1px solid #222' }}>
-              <p className="summary-text" style={{ color: 'white', fontFamily: 'sans-serif' }}>{selectedFabric} · {colorName} · {selectedSize}</p>
-              <p className="summary-price" style={{ color: 'white', fontFamily: 'sans-serif', fontWeight: '300' }}>8 900 ₽</p>
-            </div>
-
-            <div className="actions">
-              <button className="btn-cart" style={{ background: 'white', color: 'black', fontFamily: 'sans-serif', fontWeight: '500' }} onClick={handleAddToCart}>
-                В корзину
-              </button>
-            </div>
+            <button className="add-to-cart-btn-large">
+              ADD TO CART
+            </button>
           </div>
         </div>
       </div>

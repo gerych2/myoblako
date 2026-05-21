@@ -1,14 +1,14 @@
 .header {
-  background: rgba(247, 246, 242, 0.98);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
+  background: transparent;
+  position: fixed;
+  width: 100%;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+  pointer-events: none; /* let clicks pass through to canvas if needed, we'll re-enable on children */
 }
 
 .header-content {
+  pointer-events: auto;
   max-width: 1600px;
   margin: 0 auto;
   padding: 2.5rem 4rem;
@@ -35,13 +35,13 @@
 }
 
 .logo-my {
-  color: #3D5A6B;
+  color: #fff;
   font-weight: 600;
   font-size: 1.5rem;
 }
 
 .logo-oblako {
-  color: var(--primary-dark);
+  color: #ccc;
   font-size: 1.5rem;
   font-weight: 500;
 }
@@ -53,7 +53,7 @@
 }
 
 .nav-link {
-  color: var(--text-light);
+  color: #ddd;
   text-decoration: none;
   font-weight: 500;
   font-size: 0.9375rem;
@@ -134,7 +134,7 @@
 .cart-button {
   background: transparent;
   border: none;
-  color: var(--text);
+  color: #fff;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -150,8 +150,8 @@
 
 .search-btn:hover,
 .cart-button:hover {
-  background: var(--blue-light);
-  color: var(--blue);
+  background: rgba(255,255,255,0.1);
+  color: #fff;
 }
 
 .cart-badge {
